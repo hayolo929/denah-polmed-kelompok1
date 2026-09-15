@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Polmed SmartMap - Kelompok 1</title>
+    <style>
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5; /* Abu-abu terang */
+        color: #333333;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* ---------------- NAVBAR & HAMBURGER CSS ---------------- */
+      nav {
+        background-color: #ffffff;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center; /* Untuk Desktop */
+        align-items: center;
+        padding: 15px 20px;
+      }
+
+      .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+      }
+
+      nav a {
+        text-decoration: none;
+        color: #333333;
+        font-weight: bold;
+        margin: 5px 15px;
+        padding: 8px 15px;
+        border-radius: 5px;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      nav a:hover {
+        background-color: #e0e0e0;
+        color: #000000;
+      }
+
+      /* Ikon Hamburger (Disembunyikan di Desktop) */
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .hamburger span {
+        width: 25px;
+        height: 3px;
+        background-color: #333;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+      }
+
+      /* Pengaturan Khusus Layar HP (Mobile) */
+      @media (max-width: 768px) {
+        nav {
+          justify-content: flex-end; /* Geser hamburger ke kanan */
+          padding: 15px 25px;
+        }
+
+        .hamburger {
+          display: flex; /* Munculkan hamburger di HP */
+        }
+
+        .nav-links {
+          display: none; /* Sembunyikan menu secara default di HP */
+          flex-direction: column;
+          position: absolute;
+          top: 100%; /* Muncul tepat di bawah navbar */
+          left: 0;
+          width: 100%;
+          background-color: #ffffff;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          padding: 10px 0;
+        }
+
+        /* Class ini akan ditambahkan oleh JavaScript saat hamburger diklik */
+        .nav-links.active {
+          display: flex;
+        }
+
+        nav a {
+          margin: 5px 20px;
+          padding: 12px 15px;
+          border-bottom: 1px solid #f0f0f0;
+          text-align: center;
+        }
+
+        nav a:last-child {
+          border-bottom: none;
+        }
+
+        /* Efek Animasi Hamburger menjadi 'X' */
+        .hamburger.open span:nth-child(1) {
+          transform: rotate(45deg) translate(5px, 6px);
+        }
+        .hamburger.open span:nth-child(2) {
+          opacity: 0;
+        }
+        .hamburger.open span:nth-child(3) {
+          transform: rotate(-45deg) translate(5px, -6px);
+        }
+      }
+      /* -------------------------------------------------------- */
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Header & Info Kelompok */
+      header {
+        background-color: #ffffff;
+        padding: 40px 20px;
+        text-align: center;
+        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 40px;
+      }
+
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        color: #222;
+      }
+
+      .subtitle {
+        font-size: 1.2em;
+        color: #666;
+        margin-bottom: 30px;
+      }
+
+      .group-info {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 8px;
+        display: inline-block;
+        text-align: left;
+        max-width: 600px;
+        width: 100%;
+        box-sizing: border-box; /* Agar padding tidak melebihi layar di HP */
+      }
+
+      .group-info p {
+        margin: 5px 0;
+      }
+      .group-info ul {
+        margin: 5px 0 0 20px;
+        padding: 0;
+      }
+
+      /* Bagian Gambar Denah */
+      .map-section {
+        text-align: center;
+        margin-bottom: 50px;
+        padding-top: 20px;
+      }
+
+      .map-section img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 20px;
+        border: 4px solid #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Bagian Konten Gedung (Grid System) */
+      h2 {
+        border-bottom: 2px solid #333;
+        padding-bottom: 10px;
+        margin-top: 50px;
+        padding-top: 40px;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+
+      .card {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .card h3 {
+        margin-top: 0;
+        color: #111;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 10px;
+      }
+
+      .card strong {
+        color: #444;
+      }
+
+      /* Bagian Kesimpulan/Navigasi */
+      .navigation-guide {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        border-left: 5px solid #666;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 50px;
+        box-sizing: border-box;
+      }
+
+      .nav-step {
+        margin-bottom: 20px;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 20px;
+        background-color: #333;
+        color: #fff;
+        margin-top: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- NAVBAR MULAI -->
+    <nav>
+      <!-- Tombol Hamburger -->
+      <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <!-- Link Menu -->
+      <div class="nav-links" id="navLinks">
+        <a href="#beranda">Beranda</a>
+        <a href="#denah">Denah Lokasi</a>
+        <a href="#gedung-akademik">Gedung Akademik</a>
+        <a href="#fasilitas-umum">Fasilitas Umum</a>
+        <a href="#panduan-rute">Panduan Rute</a>
+      </div>
+    </nav>
+    <!-- NAVBAR SELESAI -->
+
+    <header id="beranda">
+      <h1>Polmed SmartMap</h1>
+      <div class="subtitle">
+        Direktori Kampus Interaktif (Interactive Campus Directory)
+      </div>
+
+      <div class="group-info">
+        <p><strong>Kelompok:</strong> 1</p>
+        <p><strong>Mata Kuliah:</strong> Etika dan Budaya Sumatera Utara</p>
+        <p>
+          <strong>Tugas:</strong> Membuat Denah Lokasi dan Kegunaan Gedung
+          Politeknik Negeri Medan
+        </p>
+        <p><strong>Anggota:</strong></p>
+        <ul>
+          <li>Lady Mardiani Waruwu (2605181079)</li>
+          <li>Rezky Ramadhan Sagala (2605181004)</li>
+          <li>Robi Hidayah (2605181024)</li>
+          <li>Gebryella Valencia Sitohang (2605181044)</li>
+          <li>Firjatullah Sakhi (2605181089)</li>
+        </ul>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- GAMBAR DENAH -->
+      <section class="map-section" id="denah">
+        <h2 style="margin-top: 0">Peta Denah Lokasi</h2>
+        <img
+          src="Denah polmed kelompok 1.png"
+          alt="Denah Politeknik Negeri Medan 1"
+        />
+        <img
+          src="denah_polmed_kelompok1_etika_dan_budaya_sumaterautara.png"
+          alt="Denah Politeknik Negeri Medan 2"
+        />
+      </section>
+
+      <!-- GEDUNG REKTORAT -->
+      <h2 id="gedung-akademik">Pusat Administrasi Utama</h2>
+      <div class="card" style="margin-bottom: 30px">
+        <h3>GEDUNG REKTORAT (PUSAT ADMINISTRASI)</h3>
+        <p><strong>Terdapat:</strong></p>
+        <ul>
+          <li>Kantor Direktur dan Wakil Direktur</li>
+          <li>Bagian Administrasi Akademik & Kemahasiswaan (BAAK)</li>
+          <li>Bagian Keuangan dan Kepegawaian</li>
+          <li>Ruang Rapat Utama dan Aula Pertemuan Kecil</li>
+          <li>Loket pelayanan surat-menyurat mahasiswa</li>
+        </ul>
+      </div>
+
+      <!-- GEDUNG A-Z -->
+      <h2>Direktori Gedung Akademik (A - Z)</h2>
+      <div class="grid-container">
+        <div class="card">
+          <h3>GEDUNG A</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Bengkel mekanik berat dan permesinan
+            manufaktur Jurusan Teknik Mesin.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Laboratorium uji material, ruang mesin
+            bubut, fraksionasi, dan ruang dosen Teknik Mesin.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG B</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Laboratorium konversi energi dan
+            pengelasan Jurusan Teknik Mesin.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Lab motor bakar, lab hidrolika, bengkel
+            las (welding lab), dan administrasi jurusan.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG C</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat teori dan laboratorium
+            praktikum Jurusan Teknik Elektro.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Lab instalasi listrik, lab sistem
+            kendali, lab elektronika/telekomunikasi, dan kantor dosen Teknik
+            Elektro.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG D</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Bengkel konstruksi berat Jurusan
+            Teknik Sipil.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Lab uji bahan/beton, mekanika tanah, dan
+            kantor administrasi Teknik Sipil.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG E</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat administrasi dan kelas
+            perkuliahan Jurusan Administrasi Niaga.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Kantor ketua jurusan Administrasi Niaga,
+            ruang dosen tata niaga, dan ruang kelas teori Manajemen Bisnis.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG F</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat administrasi dan laboratorium
+            Jurusan Akuntansi.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Kantor jurusan Akuntansi, lab komputer
+            akuntansi, dan ruang kelas perkuliahan reguler.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG G</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Studio gambar dan survei Jurusan
+            Teknik Sipil.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang gambar manual & CAD, lab ukur
+            tanah (pemetaan), dan bengkel kayu.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG H</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Ruang kuliah teori umum bersama
+            (Lecture Hall).
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Kelas-kelas besar untuk perkuliahan
+            teori lintas jurusan (mahasiswa teknik maupun non-teknik).
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG I</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Kelas perkuliahan umum dasar dan
+            laboratorium bahasa.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang kuliah untuk mata kuliah umum
+            (Agama, Pancasila) dan lab komputer bahasa.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG J</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat pemantauan akademik dan kelas
+            teori.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang piket/transit dosen, papan
+            pengumuman jadwal kuliah utama, dan ruang kelas.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG K</h3>
+          <p><strong>Fungsi Utama:</strong> Ruang kelas teori terpadu.</p>
+          <p>
+            <strong>Fasilitas:</strong> Kelas teori yang sering digunakan oleh
+            program studi rumpun Akuntansi dan Administrasi Niaga.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG M</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Gedung perkuliahan bertingkat untuk
+            kelas teori bersama.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Deretan ruang kelas ber-AC yang
+            digunakan lintas jurusan secara bergantian.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG N</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Ruang kelas teori dan prodi Jurusan
+            Teknik Komputer dan Informatika.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang kelas untuk program studi D4
+            Rekayasa Perangkat Lunak (RPL) dan D4 Teknologi Multimedia Grafis
+            (TMG).
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG Q</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Ruang sidang Tugas Akhir dan
+            pertemuan mini.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Tempat pelaksanaan ujian meja hijau /
+            sidang TA untuk mahasiswa tingkat akhir berbagai jurusan.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG R</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Gedung perkuliahan teori Jurusan
+            Administrasi Niaga.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang kelas administrasi bisnis, ruang
+            seminar kecil, dan kubikel dosen.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG S</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat laboratorium simulasi bisnis
+            dan bahasa Jurusan Administrasi Niaga dan tempat pembelajaran prodi
+            Administrasi Bisnis.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Laboratorium perkantoran modern, lab
+            bahasa, lab mini bank, ruang kelas, kantor dosen dan administrasi
+            jurusan manajemen bisnis, lab mengetik, dan ruang praktik prodi
+            MICE.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG U</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat laboratorium komputer terpadu
+            Jurusan Teknik Komputer dan Informatika.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Lab komputer besar untuk pemrograman,
+            manajemen informatika, dan area pelaksanaan ujian berbasis komputer
+            (CBT/UTBK).
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG W</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Laboratorium komputer rekayasa
+            bersama.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Lab rekayasa konstruksi sipil (D4 MRKG)
+            dan lab komputasi perangkat lunak informatika.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG Y</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Ruang kelas teori Jurusan Teknik
+            Komputer dan Informatika.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang kelas khusus perkuliahan teori
+            seperti algoritma, basis data, dan logika matematika.
+          </p>
+        </div>
+        <div class="card">
+          <h3>GEDUNG Z</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Gedung utama administrasi Jurusan
+            Teknik Komputer dan Informatika.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Kantor Ketua Jurusan Komputer, ruang
+            dosen, ruang server sistem informasi kampus, serta Aula Utama Lantai
+            5 yang sering dipakai untuk pelantikan organisasi mahasiswa.
+          </p>
+        </div>
+      </div>
+
+      <!-- FASILITAS UMUM -->
+      <h2 id="fasilitas-umum">Layanan & Fasilitas Umum Polmed</h2>
+      <div class="grid-container">
+        <div class="card">
+          <h3>Gedung PUML</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Inkubator bisnis mahasiswa dan
+            sertifikasi profesi.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Kantor Lembaga Sertifikasi Profesi (LSP)
+            Polmed, unit pengelolaan usaha mahasiswa, dan ruang pelatihan kerja.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Gedung O (Serbaguna)</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Aula utama kampus untuk acara
+            seremonial besar.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Lapangan olahraga indoor, panggung
+            wisuda, pameran seni, dan seminar nasional.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Perpustakaan (Perpus)</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat literasi dan belajar mandiri.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Rak koleksi buku cetak, ruang baca
+            ber-AC, area komputer penelusuran jurnal digital, dan ruang
+            penyimpanan Tugas Akhir.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Kantin</h3>
+          <p><strong>Fungsi Utama:</strong> Pusat pujasera kuliner kampus.</p>
+          <p>
+            <strong>Fasilitas:</strong> Kios-kios makanan, minuman, dan tempat
+            nongkrong atau diskusi kelompok mahasiswa.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Koperasi</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Toko perlengkapan perkuliahan
+            mahasiswa.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Tempat membeli jas almamater, baju
+            praktikum/bengkel, alat tulis, dan layanan fotokopi.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Masjid</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Pusat ibadah muslim dan kegiatan
+            keagamaan kampus.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang salat jamaah, tempat wudu, dan
+            kantor sekretariat Unit Kegiatan Mahasiswa Islam (UKMI).
+          </p>
+        </div>
+        <div class="card">
+          <h3>BEM</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Kantor kerja organisasi eksekutif
+            mahasiswa tingkat kampus.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang rapat kabinet BEM, ruang
+            administrasi program kerja, dan gudang logistik event.
+          </p>
+        </div>
+        <div class="card">
+          <h3>DPM</h3>
+          <p>
+            <strong>Fungsi Utama:</strong> Kantor kerja organisasi legislatif
+            mahasiswa tingkat kampus.
+          </p>
+          <p>
+            <strong>Fasilitas:</strong> Ruang sidang legislasi, ruang rapat
+            pengawasan organisasi, dan kotak pengaduan aspirasi mahasiswa
+            Polmed.
+          </p>
+        </div>
+      </div>
+
+      <!-- KESIMPULAN / PANDUAN NAVIGASI -->
+      <h2 id="panduan-rute">Kesimpulan & Panduan Navigasi</h2>
+      <div class="navigation-guide">
+        <p>
+          Berikut adalah panduan navigasi letak gedung berdasarkan rute jika
+          Anda masuk dari <strong>Pintu 4</strong>:
+        </p>
+
+        <div class="nav-step">
+          <h3>1. Sisi Kanan Setelah Masuk (Pintu 4)</h3>
+          <p>
+            Begitu melewati pos satpam (pintu 4), area ini didominasi oleh
+            Jurusan Teknik dan Informatika:
+          </p>
+          <ul>
+            <li>
+              <strong>Gedung C & Bengkel Listrik:</strong> Terletak paling dekat
+              dengan akses jalan utama Pintu 4. Ini adalah markas pusat kuliah
+              teori dan lab untuk Jurusan Teknik Elektro.
+            </li>
+            <li>
+              <strong>Gedung A & B:</strong> Berada di area bengkel bagian
+              depan/tengah. Menjadi pusat workshop mesin bubut, las, dan
+              konversi energi untuk Jurusan Teknik Mesin.
+            </li>
+            <li>
+              <strong>Gedung D & G:</strong> Berada di sebelah bengkel mesin.
+              Merupakan studio gambar, bengkel kayu, dan lab uji beton untuk
+              Jurusan Teknik Sipil.
+            </li>
+            <li>
+              <strong>Gedung N, U, W, Y, Z (Blok Informatika):</strong> Kompleks
+              gedung komputer ini berjejer di area rekayasa bagian tengah menuju
+              dalam. Di sinilah pusat lab pemrograman, ruang server, dan kelas
+              teori milik Jurusan Teknik Komputer dan Informatika.
+            </li>
+          </ul>
+        </div>
+
+        <div class="nav-step">
+          <h3>2. Sisi Bagian Dalam Kampus (Blok Tata Niaga/Non-Teknik)</h3>
+          <p>
+            Jika berjalan terus mengikuti selasar ke arah dalam (menjauhi
+            gerbang luar), maka akan sampai ke area rumpun bisnis dan akuntansi:
+          </p>
+          <ul>
+            <li>
+              <strong>Gedung E & R:</strong> Gedung administrasi utama dan ruang
+              kelas teori untuk Jurusan Administrasi Niaga.
+            </li>
+            <li>
+              <strong>Gedung F & K:</strong> Gedung administrasi, lab komputer
+              keuangan, dan ruang kelas untuk Jurusan Akuntansi.
+            </li>
+            <li>
+              <strong>Gedung S:</strong> Laboratorium simulasi perkantoran,
+              mengetik, dan ruang praktik program studi MICE.
+            </li>
+          </ul>
+        </div>
+
+        <div class="nav-step">
+          <h3>3. Fasilitas Umum & Gedung Bersama (Area Tengah)</h3>
+          <ul>
+            <li>
+              <strong>Gedung J, M, H, I:</strong> Gedung-gedung kelas teori ini
+              berdiri tegak di bagian tengah kampus sebagai penghubung area
+              teknik dan tata niaga. Digunakan secara bergantian oleh semua
+              jurusan.
+            </li>
+            <li>
+              <strong>Gedung Q:</strong> Ruang sidang meja hijau/Tugas Akhir
+              yang berada di dekat gedung perkuliahan teori bersama.
+            </li>
+            <li>
+              <strong>Perpus:</strong> Pusat literasi dan ruang baca ber-AC yang
+              lokasinya berada di tengah kawasan kampus agar mudah diakses semua
+              mahasiswa.
+            </li>
+            <li>
+              <strong>Gedung O (Gedung Serbaguna) & PUML:</strong> Aula besar
+              tempat wisuda/olahraga indoor serta pusat inkubator bisnis
+              mahasiswa.
+            </li>
+            <li>
+              <strong>Kantin & Koperasi:</strong> Pusat makanan dan tempat
+              membeli atribut kuliah yang berada di area strategis dekat pusat
+              kegiatan mahasiswa.
+            </li>
+            <li>
+              <strong>Masjid:</strong> Sarana ibadah utama bagi mahasiswa muslim
+              Polmed yang posisinya sangat mudah dijangkau dari arah parkiran
+              dalam.
+            </li>
+            <li>
+              <strong>Gedung BEM & DPM:</strong> Kantor sekretariat organisasi
+              mahasiswa yang terletak berdekatan dengan pusat fasilitas umum.
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>&copy; 2026 Tugas Kelompok 1 - Etika dan Budaya Sumatera Utara</p>
+    </footer>
+
+    <!-- SCRIPT JAVASCRIPT UNTUK MENU HAMBURGER -->
+    <script>
+      const hamburger = document.getElementById("hamburger");
+      const navLinks = document.getElementById("navLinks");
+      const links = document.querySelectorAll(".nav-links a");
+
+      // Fungsi saat hamburger di klik (buka/tutup menu)
+      hamburger.addEventListener("click", () => {
+        navLinks.classList.toggle("active");
+        hamburger.classList.toggle("open");
+      });
+
+      // Fungsi saat salah satu menu diklik (otomatis tutup menu di HP)
+      links.forEach((link) => {
+        link.addEventListener("click", () => {
+          navLinks.classList.remove("active");
+          hamburger.classList.remove("open");
+        });
+      });
+    </script>
+  </body>
+</html>
